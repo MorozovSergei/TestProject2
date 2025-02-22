@@ -30,7 +30,7 @@ export class User {
   @Column({ default: '' })
   lastname: string;
   
-  @ManyToOne(() => Team, (team) => team.id )
+  @ManyToOne(() => Team, (team) => team.users )
   teams: Team;
 
   @Column({ type: 'varchar', default: [Role.user], array: true })
