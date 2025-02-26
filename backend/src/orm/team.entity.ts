@@ -32,7 +32,7 @@ export class Team {
     @Column({ default: UserAccountStatus.pending })
     status: UserAccountStatus;
     
-    @OneToMany(() => User, (users) => users.teams,  {eager: true})
+    @OneToMany(() => User, (user) => user.team)
     users: User[];
 
     @Column({ default: '' })
