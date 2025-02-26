@@ -1,19 +1,19 @@
 import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  OneToMany,
-  JoinColumn,
-  ManyToMany,
-  ManyToOne,
-  OneToOne,
+    Entity,
+    Column,
+    PrimaryGeneratedColumn,
+    CreateDateColumn,
+    OneToMany,
+    ManyToMany,
+    ManyToOne,
 } from 'typeorm';   
-
-import { User } from './user.entity';
-
-import { Role, UserAccountStatus } from 'src/common/types'; 
   
+import { User } from './user.entity';
+  
+import { PrivacyTeam, StatusTeam } from 'src/common/types'; 
+import { Portfolio } from './portfolio.entity';
+import { Project } from './project.entity';
+
 @Entity()
 export class Team {
   
@@ -23,27 +23,24 @@ export class Team {
     @Column()
     name: string;
     
-    @Column()
+    @Column({ default: '' })
     description: string;
     
-    @Column()
-    privacy: string;
+    @Column({ default: PrivacyTeam.open})
+    privacy: PrivacyTeam;
 
-    @Column({ default: UserAccountStatus.pending })
-    status: UserAccountStatus;
-    
-    @OneToMany(() => User, (user) => user.team)
-    users: User[];
-
-    @Column({ default: '' })
-    firstname: string;
-    
-    @Column({ default: '' })
-    lastname: string;
-    
-    @Column({ type: 'varchar', default: [Role.user], array: true })
-    roles: Role[];
+    @Column({ default: StatusTeam.searchProject })
+    status: StatusTeam;
     
     @CreateDateColumn({ name: 'created_at' })
-    createdAt: Date;    
+    createdAt: Date;
+    
+    @OneToMany(() => User, (user) => user.team)
+    user: User[];
+
+    @OneToMany(() => Portfolio, (portfolio) => portfolio.team)
+    portfolio: Portfolio[];
+
+    @ManyToOne(() => Project, (project) => project.teams, { eager: true, onDelete: 'SET NULL' })
+    project: Project;
 }

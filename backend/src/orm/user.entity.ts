@@ -3,14 +3,25 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
-  VersionColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';   
 
 import { Team } from './team.entity';
 
-import { Role, UserAccountStatus, SecuredUser } from 'src/common/types'; 
+/*
+export type UserRoleType = "admin" | "editor" | "ghost";
+@Column({type: "enum",
+  enum: ["admin", "editor", "ghost"],
+  default: "ghost"})
+competence: UserRoleType;
+*/
+
+import { Role, UserAccountStatus, SecuredUser, Competence } from 'src/common/types'; 
+import { Idea } from './idea.entity';
+import { Portfolio } from './portfolio.entity';
+import { Comments } from './comment.entity';
+import { Project } from './project.entity';
   
 @Entity()
 export class User {
@@ -19,7 +30,7 @@ export class User {
   id: number;
   
   @Column()
-  name: string;
+  email: string;
   
   @Column()
   passwordHash: string;
@@ -30,28 +41,49 @@ export class User {
   @Column({ default: '' })
   lastname: string;
   
-  @ManyToOne(() => Team, (team) => team.users )
-  teams: Team;
+  @Column({ default: '' })
+  group: string;
+
+  @Column({ default: '' })
+  telephone: string;
 
   @Column({ type: 'varchar', default: [Role.user], array: true })
   roles: Role[];
   
   @Column({ default: UserAccountStatus.pending })
   status: UserAccountStatus;
-  
+
+  @Column({ type: 'varchar', array: true, default: '{}' })
+  competence: Competence[];
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
-  
-  @UpdateDateColumn({ name: 'updated_at' })
-  UpdatedAt!: Date;
-  
-  @VersionColumn()
-  version!: number;
+
+  @OneToMany(() => Portfolio, (portfolio) => portfolio.user)
+  portfolio: Portfolio[];
+
+  @OneToMany(() => Idea, (idea) => idea.initiator)
+  idea_initiator: Idea[];
+
+  @OneToMany(() => Idea, (idea) => idea.customer)
+  idea_customer: Idea[];
+
+  @OneToMany(() => Project, (project) => project.initiator)
+  project_initiator: Project[];
+
+  @OneToMany(() => Project, (project) => project.customer)
+  project_customer: Project[];
+
+  @OneToMany(() => Comments, (comment) => comment.users)
+  comment: Comments[];
+
+  @ManyToOne(() => Team, (team) => team.user, { eager: true, onDelete: 'SET NULL' })
+  team: Team;
   
   getSecuredDto(): SecuredUser {
     return {
       id: this.id,
-      name: this.name,
+      email: this.email,
       firstname: this.firstname,
       lastname: this.lastname,
       roles: this.roles,
@@ -59,3 +91,4 @@ export class User {
     };
   }
 }
+
